@@ -1,21 +1,19 @@
 package com.example.golubtsov.documentreader;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.example.golubtsov.documentreader.DocumentDBContract.FeedEntry;
-
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,12 +41,26 @@ public class DocumentsActivity extends Activity {
                 android.R.layout.simple_list_item_1, list);
 
         lvMain.setAdapter(adapter);
+
         lvMain.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 BufferedReader br = null;
                 FileReader fr = null;
                 String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/DocCreator/" + list.get(position);
+                Intent intentShareFile = new Intent(Intent.ACTION_SEND);
+                File fileWithinMyDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/DocCreator/" + list.get(position));
+
+                if(fileWithinMyDir.exists()) {
+                    intentShareFile.setType("application/pdf");
+                    intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/DocCreator/" + list.get(position)));
+
+                    intentShareFile.putExtra(Intent.EXTRA_SUBJECT,
+                            "Sharing File...");
+                    intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File...");
+
+                    startActivity(Intent.createChooser(intentShareFile, "Share File"));
+                }
                 StringBuilder text = new StringBuilder();
                 try {
                     fr = new FileReader(path);
@@ -69,28 +81,15 @@ public class DocumentsActivity extends Activity {
                         ex.printStackTrace();
                     }
                 }
-                AlertDialog.Builder builder = new AlertDialog.Builder(DocumentsActivity.this);
-                builder.setTitle("Text")
-                        .setMessage(text.toString())
-                        .setCancelable(false)
-                        .setNegativeButton("Done",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        dialog.cancel();
-                                    }
-                                });
-                AlertDialog alert = builder.create();
-                alert.show();
             }
         });
     }
 
     public void getDocuments() {
-        String selectQuery = "SELECT " + FeedEntry.COLUMN_NAME + " FROM " + FeedEntry.TABLE_NAME;
         DocumentDBHelper mDbHelper = new DocumentDBHelper(getApplicationContext());
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
         try {
-            Cursor cursor = db.rawQuery(selectQuery, null);
+            Cursor cursor = db.rawQuery(mDbHelper.getSqlSelectEntries(), null);
             try {
                 if (cursor.moveToFirst()) {
                     do {

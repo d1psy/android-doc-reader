@@ -19,6 +19,9 @@ public class DocumentDBHelper extends SQLiteOpenHelper {
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + FeedEntry.TABLE_NAME;
 
+    private static final String SQL_SELECT_ENTRIES =
+            "SELECT " + FeedEntry.COLUMN_NAME + " FROM " + FeedEntry.TABLE_NAME;
+
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "DocumentDBHelper.db";
 
@@ -34,5 +37,9 @@ public class DocumentDBHelper extends SQLiteOpenHelper {
     }
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
+    }
+
+    public String getSqlSelectEntries() {
+        return SQL_SELECT_ENTRIES;
     }
 }
