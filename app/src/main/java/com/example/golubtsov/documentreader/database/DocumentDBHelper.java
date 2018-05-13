@@ -1,9 +1,8 @@
-package com.example.golubtsov.documentreader;
+package com.example.golubtsov.documentreader.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.example.golubtsov.documentreader.DocumentDBContract.FeedEntry;
 
 /**
  * Created by Даня on 22.02.2018.
@@ -12,15 +11,15 @@ import com.example.golubtsov.documentreader.DocumentDBContract.FeedEntry;
 public class DocumentDBHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_ENTRIES =
-            "CREATE TABLE " + FeedEntry.TABLE_NAME + " (" +
-                    FeedEntry._ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.COLUMN_NAME + " TEXT)";
+            "CREATE TABLE " + DocumentDBContract.FeedEntry.TABLE_NAME + " (" +
+                    DocumentDBContract.FeedEntry._ID + " INTEGER PRIMARY KEY," +
+                    DocumentDBContract.FeedEntry.COLUMN_NAME + " TEXT)";
 
     private static final String SQL_DELETE_ENTRIES =
-            "DROP TABLE IF EXISTS " + FeedEntry.TABLE_NAME;
+            "DROP TABLE IF EXISTS " + DocumentDBContract.FeedEntry.TABLE_NAME;
 
     private static final String SQL_SELECT_ENTRIES =
-            "SELECT " + FeedEntry.COLUMN_NAME + " FROM " + FeedEntry.TABLE_NAME;
+            "SELECT " + DocumentDBContract.FeedEntry.COLUMN_NAME + " FROM " + DocumentDBContract.FeedEntry.TABLE_NAME;
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "DocumentDBHelper.db";

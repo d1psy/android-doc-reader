@@ -1,16 +1,22 @@
 package com.example.golubtsov.documentreader;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import com.example.golubtsov.documentreader.database.DocumentDBHelper;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,7 +34,9 @@ public class DocumentsActivity extends Activity {
     private List<String> list;
     ListView lvMain;
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         list = new ArrayList<>();
@@ -39,25 +47,33 @@ public class DocumentsActivity extends Activity {
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, list);
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
 
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},23
+                );
+            }
+        }
         lvMain.setAdapter(adapter);
-
         lvMain.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
+
                 BufferedReader br = null;
                 FileReader fr = null;
-                String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/DocCreator/" + list.get(position);
+                String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + list.get(position);
                 Intent intentShareFile = new Intent(Intent.ACTION_SEND);
-                File fileWithinMyDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/DocCreator/" + list.get(position));
+                File fileWithinMyDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + list.get(position));
 
-                if(fileWithinMyDir.exists()) {
+                if (fileWithinMyDir.exists()) {
                     intentShareFile.setType("application/pdf");
-                    intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/DocCreator/" + list.get(position)));
-
-                    intentShareFile.putExtra(Intent.EXTRA_SUBJECT,
-                            "Sharing File...");
-                    intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File...");
+                    intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + list.get(position)));
 
                     startActivity(Intent.createChooser(intentShareFile, "Share File"));
                 }

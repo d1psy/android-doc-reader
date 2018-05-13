@@ -1,4 +1,4 @@
-package com.example.golubtsov.documentreader;
+package com.example.golubtsov.documentreader.database;
 
 import android.provider.BaseColumns;
 

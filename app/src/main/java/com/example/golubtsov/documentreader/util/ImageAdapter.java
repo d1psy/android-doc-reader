@@ -1,4 +1,4 @@
-package com.example.golubtsov.documentreader;
+package com.example.golubtsov.documentreader.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -17,25 +17,20 @@ import java.util.List;
 
 public class ImageAdapter extends BaseAdapter {
 
-    private Bitmap[] photo;
     private List<Bitmap> bitmapList;
     Context context;
 
-    public ImageAdapter(Context c) {//Bitmap c)
+    public ImageAdapter(Context c) {
         bitmapList = new ArrayList<>();
         context = c;
     }
 
-    //---returns the number of images---
     public int getCount() {
         return bitmapList.size();
-//        return imageIDs.length;
     }
 
-    //---returns the ID of an item---
     public Bitmap getItem(int position) {
         return bitmapList.get(position);
-//        return position;
     }
 
     public void addItem(Bitmap bitmap) {
@@ -46,18 +41,16 @@ public class ImageAdapter extends BaseAdapter {
         return position;
     }
 
-    //---returns an ImageView view---
     public View getView(int position, View convertView, ViewGroup parent) {
         ImageView imageView;
         if (convertView == null) {
-            imageView = new ImageView(context);//(context);
+            imageView = new ImageView(context);
             imageView.setLayoutParams(new GridView.LayoutParams(185, 185));
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             imageView.setPadding(5, 5, 5, 5);
         } else {
             imageView = (ImageView) convertView;
         }
-//        imageView.setImageResource(imageIDs[position]);
         imageView.setImageBitmap(bitmapList.get(position));
         return imageView;
     }
