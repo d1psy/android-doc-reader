@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.example.golubtsov.documentreader.database.DocumentDBHelper;
+import com.example.golubtsov.documentreader.util.DocumentUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,7 +32,8 @@ import java.util.List;
 
 public class DocumentsActivity extends Activity {
 
-    private List<String> list;
+    private List<String> documents;
+    private DocumentUtils documentUtils;
     ListView lvMain;
 
     /**
@@ -39,14 +41,14 @@ public class DocumentsActivity extends Activity {
      */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        list = new ArrayList<>();
-        getDocuments();
+        documentUtils = new DocumentUtils();
+        documents = documentUtils.getDocuments(getApplicationContext());
         setContentView(R.layout.activity_documents);
 
         lvMain = findViewById(R.id.lvMain);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, list);
+                android.R.layout.simple_list_item_1, documents);
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -64,69 +66,19 @@ public class DocumentsActivity extends Activity {
         lvMain.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-
-                BufferedReader br = null;
-                FileReader fr = null;
-                String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + list.get(position);
+                String path = getApplicationContext().getExternalFilesDir("documents") + "/" + documents.get(position);
                 Intent intentShareFile = new Intent(Intent.ACTION_SEND);
-                File fileWithinMyDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + list.get(position));
+                File fileWithinMyDir = new File(path);
 
                 if (fileWithinMyDir.exists()) {
                     intentShareFile.setType("application/pdf");
-                    intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + list.get(position)));
+                    intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + path));
 
                     startActivity(Intent.createChooser(intentShareFile, "Share File"));
-                }
-                StringBuilder text = new StringBuilder();
-                try {
-                    fr = new FileReader(path);
-                    br = new BufferedReader(fr);
-                    String sCurrentLine;
-                    while ((sCurrentLine = br.readLine()) != null) {
-                        text.append(sCurrentLine);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        if (br != null)
-                            br.close();
-                        if (fr != null)
-                            fr.close();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
                 }
             }
         });
     }
 
-    public void getDocuments() {
-        DocumentDBHelper mDbHelper = new DocumentDBHelper(getApplicationContext());
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-        try {
-            Cursor cursor = db.rawQuery(mDbHelper.getSqlSelectEntries(), null);
-            try {
-                if (cursor.moveToFirst()) {
-                    do {
-                        String str;
-                        str = cursor.getString(0);
-                        list.add(str);
-                    } while (cursor.moveToNext());
-                }
-            } finally {
-                try {
-                    cursor.close();
-                } catch (Exception ignore) {
 
-                }
-            }
-        } finally {
-            try {
-                db.close();
-            } catch (Exception ignore) {
-
-            }
-        }
-    }
 }
